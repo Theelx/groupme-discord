@@ -1,6 +1,6 @@
 """A server-side Flask app to parse POST requests from GroupMe."""
 
-from json import loads, dumps
+from json import loads
 from multiprocessing import Process
 
 from io import BytesIO
