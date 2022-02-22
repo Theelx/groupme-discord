@@ -1,1 +1,10 @@
 credentials.py
+app.wsgi
+.python-version
+*.jpeg
+*.jpg
+*.png
+*.webp
+*.gif
+*.pyc
+__pycache__

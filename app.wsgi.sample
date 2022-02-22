@@ -1,0 +1,4 @@
+import sys
+
+sys.path.insert(0, '/path/to/groupme-discord')
+from groupme-discord import app as application

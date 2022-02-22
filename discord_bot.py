@@ -43,14 +43,14 @@ async def send_message(message: Message) -> str:
     if len(sent_buffer) > 10:
         sent_buffer.pop(0)
     payload = {
-        'bot_id': GROUPME_ID,
-        'text': f'{message.author.display_name}: {message.content}'
+        "bot_id": GROUPME_ID,
+        "text": message.content
     }
     cdn = await process_attachments(message.attachments)
     if cdn is not None:
         payload.update({'picture_url': cdn})
     async with ClientSession() as session:
-        return await post(session, endpoint, payload)
+        return await post(session, endpoint, json.dumps(payload))
 
 
 async def process_attachments(attachments: List[Attachment]) -> str:
@@ -59,11 +59,12 @@ async def process_attachments(attachments: List[Attachment]) -> str:
         return
     attachment = attachments[0]
     url = 'https://image.groupme.com/pictures'
-    if not attachment.filename.endswith(('jpeg', 'jpg', 'png', 'gif')):
+    if not attachment.filename.endswith(('jpeg', 'jpg', 'png', 'gif', 'webp')):
         return
     extension = attachment.filename.partition('.')[-1]
     if extension == 'jpg':
         extension = 'jpeg'
+    print(dir(attachment))
     handler = BytesIO()
     await attachment.save(handler)
     headers = {
