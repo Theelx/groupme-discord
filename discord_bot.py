@@ -64,7 +64,6 @@ async def process_attachments(attachments: List[Attachment]) -> str:
     extension = attachment.filename.partition('.')[-1]
     if extension == 'jpg':
         extension = 'jpeg'
-    print(dir(attachment))
     handler = BytesIO()
     await attachment.save(handler)
     headers = {
