@@ -8,3 +8,4 @@ app.wsgi
 *.gif
 *.pyc
 __pycache__
+nohup.out

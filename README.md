@@ -1,10 +1,12 @@
 # GroupMeDiscord
 
-This is a fork of karmanyaahm's amazing fork of the original Discord-Groupme bridge. Currently the only addition over karmanyaahm's version is the ability to relay images from Groupme chats to Discord, though I will soon add the ability to have the bot bridge multiple chats.
+This is a fork of karmanyaahm's amazing fork of the original Discord-Groupme bridge. Currently the only additions over karmanyaahm's version are the ability to relay images from Groupme chats to Discord (and vice versa), and the ability to host it using flask and apache, though I'm willing to add more if requested!
+
+See HOSTING.md for information on how to host this with flask and apache on an Ubuntu VPS, the original README using ngrok remains below.
+
+I highly recommend getting your own VPS and not using ngrok if possible, as a cheap VPS at somewhere like [Galaxygate](https://billing.galaxygate.net/aff.php?aff=107) (disclosure: affiliate link gives me 10% comission) can be $3/month with high performance as opposed to ngrok costing at least $5/month if you want any more than 40 connections/minute. A bridge between Discord and Groupme with only 1 person on each end can easily surpass 40 connections per minute (each message takes a connection to Discord and Groupme, so only 1 messages every 3 seconds) during active chatting.
 
 ---
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f75c31c547204176a8e8dc4412918b17)](https://app.codacy.com/app/AnonGuy/GroupMeDiscord?utm_source=github.com&utm_medium=referral&utm_content=AnonGuy/GroupMeDiscord&utm_campaign=Badge_Grade_Dashboard) [![Build Status](https://travis-ci.org/AnonGuy/GroupMeDiscord.svg?branch=master)](https://travis-ci.org/AnonGuy/GroupMeDiscord) [![Updates](https://pyup.io/repos/github/AnonGuy/GroupMeDiscord/shield.svg)](https://pyup.io/repos/github/AnonGuy/GroupMeDiscord/)
-
 
 Some Python scripts to interface between Discord and GroupMe.
 
@@ -20,8 +22,8 @@ If you have issues with the discord.py installation, use the following command:
 python3 -m pip install -U https://github.com/Rapptz/discord.py/archive/rewrite.zip#egg=discord.py
 ```
 You also need to be able to **expose the flask webserver.** <br/>
-If you already know how to do this, change the `run_locally` variable in `config.ini` to `false`. <br/> <br/>
-If not, The easiest method to do this is by using the ngrok tool. View the documentation [here](https://ngrok.com/). <br/>
+The easiest method to do this is by using the ngrok tool. View the documentation [here](https://ngrok.com/). <br/>
+(Note that Theelx#4980 recommends using a VPS to host it, see HOSTING.md for instructions on that)
 Once ngrok is setup and authorized, execute the following command to recieve your ngrok URL (you'll need this later):
 ```bash
 ngrok http 5000
@@ -36,8 +38,7 @@ You should be redirected to the application page of your bot. <br/> Scroll down 
 ![image](http://i.imgur.com/C8W4dw1.png) <br/>
 You will now be able to view the token of your bot application.
 ![image](http://i.imgur.com/ODQDOFc.png) <br/>
-Copy this token and paste it into your `config.ini` file:
-![image](http://i.imgur.com/tdSyCmu.png) <br/>
+Copy this token and paste it into your `credentials.py` file.
 
 ### Webhook
 The webserver will be sending GroupMe messages to a dedicated channel by using a Discord Webhook. <br/>
@@ -46,8 +47,7 @@ After creating a webhook, copy the webhook URL shown: <br/>
 ![image](http://i.imgur.com/rYzZ9gc.png) <br/>
 And paste it into your config file:
 ![image](http://i.imgur.com/ZMHYt3y.png) <br>
-There's just one more thing to do on the Discord side: enable User Settings -> Appearance -> Developer Mode and right click the channel that the webhook is using. Paste this number into your config file too:
-![image](http://i.imgur.com/ZbQH1bm.png) <br/>
+There's just one more thing to do on the Discord side: enable User Settings -> Appearance -> Developer Mode and right click the channel that the webhook is using. Paste this number into your config file too.
 
 ## GroupMe
 Now that you've set up the Discord constants, you'll also need to setup your GroupMe Bot. <br/>
@@ -63,6 +63,9 @@ Copy this string and paste it into your config file: <br/>
 ![image](http://i.imgur.com/IpouBmi.png)
 ![image](http://i.imgur.com/sA8tZJU.png) <br/>
 
+
+## Configuration
+Replace all the values in app.py.sample and credentials.py.sample with their proper values (you'll need to use stuff from the previous setup sections), and then rename the files to remove the .sample ending. You should have app.py and credentials.py now, and then you're set to go to the next step!
 ## Usage
 Now run the application:
 ```bash

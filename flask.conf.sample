@@ -1,0 +1,15 @@
+<VirtualHost *:42069>
+
+ServerName <Insert Server IP Here> # REPLACE IP HERE
+
+WSGIDaemonProcess app.py user=www-data group=www-data threads=5
+WSGIScriptAlias / /path/to/groupme-discord/app.wsgi # REPLACE PATH HERE
+
+<Directory /path/to/groupme-discord/> # REPLACE PATH HERE
+ WSGIProcessGroup app.py
+ WSGIApplicationGroup %{GLOBAL}
+ WSGIScriptReloading On
+
+ Require all granted
+</Directory>
+</VirtualHost>
