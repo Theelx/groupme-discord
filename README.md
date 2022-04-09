@@ -67,7 +67,8 @@ Copy this string and paste it into your config file: <br/>
 ## Configuration
 Replace all the values in app.py.sample and credentials.py.sample with their proper values (you'll need to use stuff from the previous setup sections), and then rename the files to remove the .sample ending. You should have app.py and credentials.py now, and then you're set to go to the next step!
 ## Usage
-Now run the application:
+Create a folder named `images` inside this repo directory for image processing to work as intended.
+Run the application:
 ```bash
 python3 main.py
 ```
