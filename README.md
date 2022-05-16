@@ -8,8 +8,8 @@ I highly recommend getting your own VPS and not using ngrok if possible, as a ch
 
 ---
 
-Some Python scripts to interface between Discord and GroupMe.
 
+Some Python scripts to interface between Discord and GroupMe.
 
 ## Requirements
 These scripts require Python 3.6+. <br/>
