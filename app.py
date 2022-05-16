@@ -31,6 +31,8 @@ def index():
             for url in message_object["attachments"]
         ]
 
+        images = 0
+
         for id, (url, im) in enumerate(ims):
             extension = url.split(".")[-2]
             filename = f"./images/{images}.{extension}"
