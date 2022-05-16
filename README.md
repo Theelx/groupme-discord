@@ -16,6 +16,8 @@ Before starting, make sure that you install the requirements with:
 ```bash
 cd ~/path/to/GroupMe/
 python3 -m pip install -r requirements.txt
+touch last_message_id.txt
+touch groupme_channels.txt
 ```
 If you have issues with the discord.py installation, use the following command:
 ```bash

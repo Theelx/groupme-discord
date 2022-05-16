@@ -1,6 +1,8 @@
 credentials.py
 app.wsgi
 .python-version
+last_message_id.txt
+groupme_channels.txt
 *.jpeg
 *.jpg
 *.png

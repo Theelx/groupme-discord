@@ -1,69 +1,50 @@
 """A server-side Flask app to parse POST requests from GroupMe."""
 
+import json
+
 from json import loads
 from multiprocessing import Process
 
+import aiohttp
+import discord
 from io import BytesIO
 import requests
-from flask import Flask, request
+from quart import Quart, request
 
+from credentials import settings
 
-app = Flask(__name__)
+app = Quart(__name__)
 
 images = 0
 
+CHANNELS = set()
+
+async def process_message(message_object):
+    async with aiohttp.ClientSession() as session:
+        webhook = discord.Webhook.from_url(settings[0]["webhook_url"], session=session)
+
+        with open('last_message_id.txt', 'w+') as f:
+            f.write(str(message_object["id"]))
+
+        if message_object["group_id"] not in CHANNELS:
+            CHANNELS.add(message_object["group_id"])
+            with open("groupme_channels.txt", "w+") as f:
+                f.write(str(CHANNELS))
+
+        if "attachments" in message_object:
+            await webhook.send(message_object["text"], username=message_object["name"], avatar_url=message_object["avatar_url"], files=[discord.File(fname) for fname in message_object["attachments"]])
+        else:
+            await webhook.send(message_object["text"], username=message_object["name"], avatar_url=message_object["avatar_url"])
 
 @app.route("/", methods=["POST"])
-def index():
+async def index():
     global images
     """Method for base route."""
-    message_object = loads(request.data)
-    msg_data = {
-        "username": message_object["name"],
-        "content": message_object["text"],
-        "avatar_url": message_object["avatar_url"],
-    }
-    requests.post(WEBHOOK_URL, data=msg_data)
 
-    if "attachments" in message_object:
-        ims = [
-            (url["url"], BytesIO(requests.get(url["url"]).content))
-            for url in message_object["attachments"]
-        ]
+    message_object = await request.get_json()
 
-        for id, (url, im) in enumerate(ims):
-            extension = url.split(".")[-2]
-            filename = f"./images/{images}.{extension}"
-            with open(filename, "wb") as f:
-                f.write(im.getbuffer())
-            message_object["attachments"][id] = filename
-            images += 1
-        msg_data |= {
-            "attachments": [
-                {"id": id, "description": "Test", "filename": filename}
-                for id, filename in enumerate(message_object["attachments"])
-            ]
-        }
-        attachment_data = []
-        for id, filename in enumerate(message_object["attachments"]):
-            with open(filename, "rb") as file:
-                attachment_data.append(
-                    {
-                        "name": f"files[{id}]",
-                        "value": file.read(),
-                        "filename": filename,
-                        "content_type": "application/octet-stream",
-                    }
-                )
-        attachment_data.append({"name": "payload_json", "value": msg_data.copy()})
-        file_data = {}
-        for p in attachment_data:
-            name = p["name"]
-            if name == "payload_json":
-                attachment_data = {"payload_json": p["value"]}
-            else:
-                file_data[name] = (p["filename"], p["value"], p["content_type"])
-        requests.post(WEBHOOK_URL, data=attachment_data, files=file_data)
+    await process_message(message_object)
+
     return ""
 
 
@@ -71,4 +52,9 @@ def main(webhookURL, *args, **kwargs):
     global WEBHOOK_URL
     WEBHOOK_URL = webhookURL
     """Start the webserver with the provided options."""
-    Process(target=app.run, args=args, kwargs=kwargs).start()
+    try:
+        p = Process(target=app.run, args=args, kwargs=kwargs)
+        p.start()
+    except (KeyboardInterrupt, AttributeError) as e:
+        p.kill()
+        raise e
