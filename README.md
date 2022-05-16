@@ -18,6 +18,7 @@ cd ~/path/to/GroupMe/
 python3 -m pip install -r requirements.txt
 touch last_message_id.txt
 touch groupme_channels.txt
+echo "{'0'}" > groupme_channels.txt # make sure ast.literal_eval intiailizes as a set
 ```
 If you have issues with the discord.py installation, use the following command:
 ```bash
