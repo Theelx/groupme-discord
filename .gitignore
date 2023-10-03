@@ -11,3 +11,4 @@ groupme_channels.txt
 *.pyc
 __pycache__
 nohup.out
+tokens/

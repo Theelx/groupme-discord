@@ -13,7 +13,7 @@ from discord.ext import commands
 from aiohttp import ClientSession
 from discord import Attachment, Message
 
-from app import process_message
+from downtime import process_downtime
 
 async def post(
     session: ClientSession,
@@ -45,7 +45,7 @@ async def send_message(message: Message) -> str:
     sent_buffer.append(text)
     if len(sent_buffer) > 10:
         sent_buffer.pop(0)
-    payload = {"bot_id": GROUPME_ID, "text": message.content}
+    payload = {"bot_id": GROUPME_ID, "text": f"{message.author.nick}: {message.content}"}
     cdn = await process_attachments(message.attachments)
     if cdn is not None:
         payload.update({"picture_url": cdn})
@@ -72,45 +72,18 @@ async def process_attachments(attachments: List[Attachment]) -> str:
         cdn = json.loads(cdn)["payload"]["url"]
     return cdn
 
-
-async def process_downtime():
-    with open("last_message_id.txt", "r+") as f:
-        id = f.read()
-        if id == "":
-            id = "0"
-
-    with open("groupme_channels.txt", "r+") as f:
-        try:
-            group_ids = ast.literal_eval(f.read())
-        except:
-            group_ids = set()
-    
-    for group_id in group_ids:
-        count = 0 # make sure while loop stops after at most 100 iterations
-        payload = {"since_id": id}
-        async with ClientSession() as session:
-            async with session.get("https://api.groupme.com/v3/groups/" + group_id + "/messages?token=" + GROUPME_TOKEN, data=json.dumps(payload)) as response:
-                newest_id = (await response.json())["response"]["messages"]
-                newest_id = newest_id[0]["id"]
-        while id != newest_id and count < 100:
-            payload = {"after_id": id, "limit": 100}
-            async with ClientSession() as session:
-                async with session.get("https://api.groupme.com/v3/groups/" + group_id + "/messages?token=" + GROUPME_TOKEN, data=json.dumps(payload)) as response:
-                    # reverse to get oldest first
-                    messages = (await response.json())["response"]["messages"]
-                    messages.reverse()
-                    id = messages[-1]["id"]
-                    for message in messages.copy():
-                        await process_message(message)
-                        await asyncio.sleep(1.5)
-            count += 1
-    return 1
-
 @bot.event
 async def on_ready() -> None:
     """Called when the bot loads."""
     await process_downtime()
     print("-------------\nBot is ready!\n-------------")
+    loop = asyncio.get_event_loop()
+    loop.call_later(20, task.cancel)
+    task = loop.create_task(process_downtime())
+    try:
+        loop.run_until_complete(task)
+    except asyncio.CancelledError:
+        pass
 
 
 @bot.event
@@ -123,13 +96,14 @@ async def on_message(message: Message) -> None:
             await message.delete()
 
 
-def main(botToken, groupmeToken, groupmeID, channelName):
-    global BOT_TOKEN, GROUPME_TOKEN, GROUPME_ID, CHANNEL_NAME
-    BOT_TOKEN, GROUPME_TOKEN, GROUPME_ID, CHANNEL_NAME = (
+def main(botToken, groupmeToken, groupmeID, channelName, maxCount):
+    global BOT_TOKEN, GROUPME_TOKEN, GROUPME_ID, CHANNEL_NAME, MAX_COUNT
+    BOT_TOKEN, GROUPME_TOKEN, GROUPME_ID, CHANNEL_NAME, MAX_COUNT = (
         botToken,
         groupmeToken,
         groupmeID,
         channelName,
+        maxCount
     )
 
     """Start the bot with the provided token."""
