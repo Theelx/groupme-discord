@@ -10,5 +10,5 @@ groupme_channels.txt
 *.gif
 *.pyc
 __pycache__
-nohup.out
+nohup*.out
 tokens/

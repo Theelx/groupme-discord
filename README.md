@@ -74,6 +74,6 @@ Replace all the values in app.py.sample and credentials.py.sample with their pro
 Create a folder named `images` inside this repo directory for image processing to work as intended.
 Run the application:
 ```bash
-python3 main.py
+python3 everything_main.py
 ```
 You should see any messages appear in the chosen Discord channel, and you will also be able to send messages and images to the GroupMe chat.
