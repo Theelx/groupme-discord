@@ -53,8 +53,17 @@ async def process_message(message_object):
             # it's probably the bridge message
             return 
         if "attachments" in message_object:
+            #print([fname for fname in message_object["attachments"]])
             print(message_object["attachments"])
-            await webhook.send(message_object["text"], username=message_object["name"], avatar_url=message_object["avatar_url"], files=[discord.File((await download_file(fname["url"])), filename=".".join(fname["url"].split('.')[:-1])) for fname in message_object["attachments"]])
+            # this could be a list comp but isnt for debugging purposes
+            files = []
+            for fname in message_object["attachments"]:
+                #print(f"fname: {fname}")
+                #print(".".join(fname["url"].split('.')[:-1]))
+                fileobj = await download_file(fname["url"])
+                files.append(discord.File(fileobj, filename=".".join(fname["url"].split('.')[:-1])))
+            #print(files)
+            await webhook.send(message_object["text"], username=message_object["name"], avatar_url=message_object["avatar_url"], files=files)
         else:
             print(message_object["name"])
             await webhook.send(message_object["text"], username=message_object["name"], avatar_url=message_object["avatar_url"])

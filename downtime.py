@@ -61,7 +61,7 @@ async def process_downtime():
                         for message in messages.copy():
                             if count > MAX_COUNT:
                                 break
-                            elif int(message["id"]) < int(id_thing):
+                            elif int(message["id"]) <= int(id_thing):
                                 continue
                             await process_message(message)
                             print(message["id"], message["text"])
