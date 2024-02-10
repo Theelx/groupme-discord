@@ -45,7 +45,7 @@ async def send_message(message: Message) -> str:
     sent_buffer.append(text)
     if len(sent_buffer) > 10:
         sent_buffer.pop(0)
-    payload = {"bot_id": GROUPME_ID, "text": f"{message.author.nick}: {message.content}"}
+    payload = {"bot_id": GROUPME_ID, "text": f"{message.author.nick or message.author.name}: {message.content}"}
     cdn = await process_attachments(message.attachments)
     if cdn is not None:
         payload.update({"picture_url": cdn})
