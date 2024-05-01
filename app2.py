@@ -3,6 +3,7 @@
 import io
 import json
 import time
+import traceback
 
 from json import loads
 from multiprocessing import Process
@@ -60,10 +61,16 @@ async def process_message(message_object):
             for fname in message_object["attachments"]:
                 #print(f"fname: {fname}")
                 #print(".".join(fname["url"].split('.')[:-1]))
-                fileobj = await download_file(fname["url"])
-                files.append(discord.File(fileobj, filename=".".join(fname["url"].split('.')[:-1])))
+                try:
+                    fileobj = await download_file(fname["url"])
+                    files.append(discord.File(fileobj, filename=".".join(fname["url"].split('.')[:-1])))
+                except KeyError as e:
+                    print(fname)
             #print(files)
-            await webhook.send(message_object["text"], username=message_object["name"], avatar_url=message_object["avatar_url"], files=files)
+            try:
+                await webhook.send(message_object["text"], username=message_object["name"], avatar_url=message_object["avatar_url"], files=files)
+            except Exception as e:
+                traceback.print_exception(e, limit=100)
         else:
             print(message_object["name"])
             await webhook.send(message_object["text"], username=message_object["name"], avatar_url=message_object["avatar_url"])
